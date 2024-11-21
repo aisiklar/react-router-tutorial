@@ -1,10 +1,11 @@
-import { Form, useLoaderData, redirect } from "react-router-dom";
+import { Form, useLoaderData, redirect, useNavigate } from "react-router-dom";
 import { updateContact } from "../contacts";
 
 export async function action({ request, params }) {
-  console.log("action in edit, request.body: ", request.body);
+  console.log("action in edit, request: ", request);
   console.log("action in edit, params: ", params);
   const formData = await request.formData();
+  console.log("action in edit, formData: ", formData);
   const updates = Object.fromEntries(formData);
   await updateContact(params.contactId, updates);
   return redirect(`/contacts/${params.contactId}`);
@@ -12,6 +13,8 @@ export async function action({ request, params }) {
 
 export default function EditContact() {
   const { contact } = useLoaderData();
+  const navigate = useNavigate();
+  console.log("navigate: ", navigate);
   console.log("in editContact, contact: ", contact);
 
   return (
@@ -58,7 +61,14 @@ export default function EditContact() {
       </label>
       <p>
         <button type="submit">Save</button>
-        <button type="button">Cancel</button>
+        <button
+          type="button"
+          onClick={() => {
+            navigate(-1);
+          }}
+        >
+          Cancel
+        </button>
       </p>
     </Form>
   );

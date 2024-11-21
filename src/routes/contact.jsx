@@ -9,8 +9,9 @@ export async function loader({ params }) {
 
 export default function Contact() {
   console.log("in Contact...");
-  const contact = useLoaderData();
+  const { contact } = useLoaderData();
   console.log("contact: ", contact);
+  console.log("contact.first || contact.last: ", contact.first || contact.last);
   // const contact = {
   //   first: "Your",
   //   last: "Name",
@@ -31,7 +32,6 @@ export default function Contact() {
           }
         />
       </div>
-
       <div>
         <h1>
           {contact.first || contact.last ? (
