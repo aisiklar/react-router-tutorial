@@ -1,10 +1,28 @@
-import { Form, useLoaderData } from "react-router-dom";
-import { getContact } from "../contacts";
+import { Form, useLoaderData, useFetcher } from "react-router-dom";
+import { getContact, updateContact } from "../contacts";
+import PropTypes from "prop-types";
 
 export async function loader({ params }) {
   console.log("in loader, contact.jsx...");
   const contact = await getContact(params.contactId);
+  if (!contact) {
+    throw new Response("", {
+      status: 404,
+      statusText: "Not Found - this is from contact's loader function",
+    });
+  }
   return { contact };
+}
+
+export async function action({ request, params }) {
+  console.log("contact / action...");
+  const formData = await request.formData();
+  for (let i of formData) {
+    console.log("formData i: ", i);
+  }
+  return updateContact(params.contactId, {
+    favorite: formData.get("favorite") === "true",
+  });
 }
 
 export default function Contact() {
@@ -80,9 +98,34 @@ export default function Contact() {
 // };
 
 function Favorite({ contact }) {
-  const favorite = contact.favorite;
+  const fetcher = useFetcher();
+
+  // const favorite = contact.favorite;
+  const favorite = fetcher.formData
+    ? fetcher.formData.get("favorite") === "true"
+    : contact.favorite;
+
+  // rephrase of above statements to log the process
+  // let favorite;
+  // if (fetcher.formData) {
+  //   console.log("#1 fetcher.formData true");
+  //   console.log(
+  //     '#1 fetcher.formData.get("favorite") ',
+  //     fetcher.formData.get("favorite")
+  //   );
+  //   console.log(
+  //     '#1 fetcher.formData.get("favorite") === "true": ',
+  //     fetcher.formData.get("favorite") === "true"
+  //   );
+  //   favorite = fetcher.formData.get("favorite") === "true";
+  // } else {
+  //   console.log("#1 fetcher.formData false");
+  //   console.log("contact.favorite: ", contact.favorite);
+  //   favorite = contact.favorite;
+  // }
+
   return (
-    <Form method="post">
+    <fetcher.Form method="post">
       <button
         name="favorite"
         value={favorite ? "false" : "true"}
@@ -90,6 +133,6 @@ function Favorite({ contact }) {
       >
         {favorite ? "★" : "☆"}
       </button>
-    </Form>
+    </fetcher.Form>
   );
 }

@@ -5,6 +5,7 @@ import {
   useNavigation,
   Form,
   redirect,
+  useSubmit,
 } from "react-router-dom";
 import { getContacts, createContact } from "../contacts";
 
@@ -30,7 +31,35 @@ export default function Root() {
   const { contacts, q } = useLoaderData();
   console.log("root, q: ", q);
   const navigation = useNavigation();
+  const submit = useSubmit();
   // console.log("root, useNavigation returns: ", navigation);
+
+  function submitHandler(e) {
+    console.log("submitHandler, event: ", e);
+    console.log("submitHandler, e.target.value: ", e.target.value);
+    console.log("submitHandler, e.currentTarget: ", e.currentTarget);
+    console.log("submitHandler, e.currentTarget.form: ", e.currentTarget.form);
+    const isFirstSearch = q == null;
+    console.log("q and isFirstSearch: ", q, "--", isFirstSearch);
+    submit(e.currentTarget.form, { replace: !isFirstSearch });
+  }
+
+  const searching =
+    navigation.location &&
+    new URLSearchParams(navigation.location.search).has("q");
+
+  console.log("navigation.state: ", navigation.state);
+  console.log("navigation.location: ", navigation.location);
+  if (navigation.location) {
+    console.log(
+      'new URLSearchParams(navigation.location.search).has("q")): ',
+      new URLSearchParams(navigation.location.search).has("q")
+    );
+    console.log(
+      "new URLSearchParams(navigation.location.search).toString(): ",
+      new URLSearchParams(navigation.location.search).toString()
+    );
+  }
 
   // console.log("in Root, contacts: ", contacts);
   return (
@@ -41,13 +70,15 @@ export default function Root() {
           <Form id="search-form" role="search">
             <input
               id="q"
+              className={searching ? "loading" : ""}
               aria-label="Search contacts"
               placeholder="Search"
               type="search"
               name="q"
               defaultValue={q}
+              onChange={(e) => submitHandler(e)}
             />
-            <div id="search-spinner" aria-hidden hidden={true} />
+            <div id="search-spinner" aria-hidden hidden={!searching} />
             <div className="sr-only" aria-live="polite"></div>
           </Form>
           <Form method="post">

@@ -5,7 +5,11 @@ export async function action({ request, params }) {
   console.log("action in edit, request: ", request);
   console.log("action in edit, params: ", params);
   const formData = await request.formData();
-  console.log("action in edit, formData: ", formData);
+  console.log("action in edit, formData: ", formData); // doesnt give much data
+  for (let prop of formData) {
+    console.log("formData prop: ", prop);
+  }
+
   const updates = Object.fromEntries(formData);
   await updateContact(params.contactId, updates);
   return redirect(`/contacts/${params.contactId}`);
